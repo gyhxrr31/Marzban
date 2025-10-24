@@ -19,7 +19,7 @@ logger.addHandler(ch)
 
 def hwid_check(
     hwid: str | None = Header(default=None, alias="x-hwid"),
-    os: str | None = Header(default=None, alias="x-ver-os"),
+    os: str | None = Header(default=None, alias="x-device-os"),
     model: str | None = Header(default=None, alias="x-device-model"),
     db: Session = Depends(get_db),
     dbuser: UserResponse = Depends(get_validated_sub)
