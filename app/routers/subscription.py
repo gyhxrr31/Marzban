@@ -1,6 +1,6 @@
 import re
 from distutils.version import LooseVersion
-
+from app.routers.depends import hwid_check
 from fastapi import APIRouter, Depends, Header, Path, Request, Response
 from fastapi.responses import HTMLResponse
 
@@ -51,6 +51,7 @@ def user_subscription(
     request: Request,
     db: Session = Depends(get_db),
     dbuser: UserResponse = Depends(get_validated_sub),
+    hwid: str | None = Depends(hwid_check),
     user_agent: str = Header(default="")
 ):
     """Provides a subscription link based on the user agent (Clash, V2Ray, etc.)."""
