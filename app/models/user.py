@@ -3,7 +3,7 @@ import secrets
 from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Union
-
+import json
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app import xray
@@ -15,6 +15,9 @@ from config import XRAY_SUBSCRIPTION_PATH, XRAY_SUBSCRIPTION_URL_PREFIX
 
 USERNAME_REGEXP = re.compile(r"^(?=\w{3,32}\b)[a-zA-Z0-9-_@.]+(?:_[a-zA-Z0-9-_@.]+)*$")
 
+
+class HWIDRemoveRequest(BaseModel):
+    hwid: str
 
 class ReminderType(str, Enum):
     expiration_date = "expiration_date"
@@ -289,6 +292,16 @@ class UserResponse(User):
     subscription_url: str = ""
     proxies: dict
     excluded_inbounds: Dict[ProxyTypes, List[str]] = {}
+    hwid_device_list: Optional[List[Dict[str, str]]] = None
+
+    @field_validator("hwid_device_list", mode="before")
+    def parse_hwid_list(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return []
+        return v or []
 
     admin: Optional[Admin] = None
     model_config = ConfigDict(from_attributes=True)
