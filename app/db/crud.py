@@ -45,6 +45,7 @@ from app.models.user_template import UserTemplateCreate, UserTemplateModify
 from app.utils.helpers import calculate_expiration_days, calculate_usage_percent
 from config import NOTIFY_DAYS_LEFT, NOTIFY_REACHED_USAGE_PERCENT, USERS_AUTODELETE_DAYS
 
+import json
 
 def add_default_host(db: Session, inbound: ProxyInbound):
     """
@@ -1498,3 +1499,24 @@ def count_online_users(db: Session, hours: int = 24):
     query = db.query(func.count(User.id)).filter(User.online_at.isnot(
         None), User.online_at >= twenty_four_hours_ago)
     return query.scalar()
+
+
+
+def remove_hwid(db: Session, user_id: int, hwid: str) -> bool:
+    """
+    Удаляет устройство по hwid из hwid_device_list пользователя.
+    Возвращает True, если устройство найдено и удалено, иначе False.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return False
+
+    hwid_list = json.loads(user.hwid_device_list) if user.hwid_device_list else []
+    new_list = [d for d in hwid_list if d.get("hwid") != hwid]
+
+    if len(new_list) == len(hwid_list):
+        return False  # ничего не удалилось
+
+    user.hwid_device_list = json.dumps(new_list)
+    db.commit()
+    return True
