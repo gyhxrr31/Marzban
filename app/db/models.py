@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-
 from sqlalchemy import (
     JSON,
     BigInteger,
@@ -15,6 +14,7 @@ from sqlalchemy import (
     Table,
     UniqueConstraint,
     func,
+    Text
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -86,6 +86,7 @@ class User(Base):
     online_at = Column(DateTime, nullable=True, default=None)
     on_hold_expire_duration = Column(BigInteger, nullable=True, default=None)
     on_hold_timeout = Column(DateTime, nullable=True, default=None)
+    hwid_device_list = Column(Text, nullable=True, default=None)
 
     # * Positive values: User will be deleted after the value of this field in days automatically.
     # * Negative values: User won't be deleted automatically at all.
