@@ -15,7 +15,7 @@ from app.models.user import (
     UsersResponse,
     UserStatus,
     UsersUsagesResponse,
-    UserUsagesResponse,
+    UserUsagesResponse, HWIDRemoveRequest,
 )
 from app.utils import report, responses
 
@@ -394,3 +394,16 @@ def delete_expired_users(
         )
 
     return removed_users
+
+
+
+@router.delete("/users/{user_id}/hwid")
+def delete_user_hwid(
+    user_id: int,
+    request: HWIDRemoveRequest,
+    db: Session = Depends(get_db)
+):
+    success = crud.remove_hwid(db, user_id, request.hwid)
+    if not success:
+        raise HTTPException(status_code=404, detail="HWID not found")
+    return {"detail": "HWID removed"}
